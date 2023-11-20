@@ -1,5 +1,4 @@
 from socket import socket
-import socket
 from util.user import User
 from util.thread import thread
 from util.message import Message
@@ -28,17 +27,21 @@ class Server:
             state = "waiting_register"
             message = None
             while True:
-                if message == None:
+                if message is None:
                     message = connection.recv(1024)
 
-                elif state == "waiting_register" and message.type == Message.kind(
-                    "register"
+                elif (
+                    state == "waiting_register" and
+                    message.type == Message.kind("register")
                 ):
                     user = self.connections.find_by("name", message.user_name)
 
-                    if user == None:
+                    if user is None:
                         current_user = User(
-                            connection, message.user_name, message.ip, message.porta
+                            connection,
+                            message.user_name,
+                            message.ip,
+                            message.porta,
                         )
                         self.connections.append(current_user)
                         self.send(Message("accepted_register"), current_user)
@@ -47,19 +50,22 @@ class Server:
                         message = None
 
                     else:
-                        # NOTE Send connection since current_user doesnt exist yet
+                        # NOTE Send connection since current_user doesnt exist
                         self.send(Message("declined_register"), connection)
                         message = None
 
                 elif state == "idle":
                     if message.type == Message.kind("registry"):
-                        user = self.connections.find_by("name", message.user_name)
-                        if user == None:
+                        user = self.connections.find_by(
+                            "name", message.user_name
+                        )
+                        if user is None:
                             self.send(Message("not_found"), current_user)
 
                         else:
                             self.send(
-                                Message("registry", user=user.jsonfy()), current_user
+                                Message("registry", user=user.jsonfy()),
+                                current_user
                             )
                         message = None
 
@@ -89,4 +95,6 @@ class Server:
     def update_users_list(self):
         for connection in self.connections.active_connections:
             user = self.connections.find_by("name", connection.name)
-            self.send(Message("users_list", data=self.connections.jsonfy()), user)
+            self.send(
+                Message("users_list", data=self.connections.jsonfy()), user
+            )

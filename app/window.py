@@ -1,10 +1,22 @@
 import socket
 import PyQt5
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import (
+    QMainWindow,
+    QTableWidgetItem,
+    QWidget,
+    QFormLayout,
+    QLineEdit,
+    QPushButton,
+    QLabel,
+    QHBoxLayout,
+    QTableWidget,
+    QHeaderView,
+    QVBoxLayout,
+)
+from PyQt5.QtCore import pyqtSlot
 from app.client import Client
 from app.components.call_pop_up import CallPopUp
+
 
 class Window(QMainWindow):
     state_change = PyQt5.QtCore.pyqtSignal()
@@ -27,25 +39,25 @@ class Window(QMainWindow):
         self.setCentralWidget(self.centralWidget)
         formLayout = QFormLayout()
 
-        ### Connection
+        # Connection
         self.ip = QLineEdit()
         self.ip.setText(socket.gethostbyname(socket.gethostname()))
         self.connect_btn = QPushButton("Connect to server", self)
         self.connect_btn.clicked.connect(self.connect)
         formLayout.addRow("Ip: (0.0.0.0)", self.ip)
         formLayout.addRow(self.connect_btn)
-        ###################
+        #######
 
-        ### Login
+        # Login
         self.user_name = QLineEdit()
         self.user_name.setText("Bruno")
         self.login_btn = QPushButton("Login", self)
         self.login_btn.clicked.connect(self.login)
         formLayout.addRow("Login as:", self.user_name)
         formLayout.addRow(self.login_btn)
-        ###################
+        #######
 
-        ### TCP server stuff
+        # TCP server stuff
         self.server_status = QLabel(self)
         self.server_status.setGeometry(20, 20, 100, 100)
         self.server_status.setText("[offline]")
@@ -53,9 +65,9 @@ class Window(QMainWindow):
 
         self.user_to_call = QLineEdit()
         formLayout.addRow("User name:", self.user_to_call)
-        ###################
+        #######
 
-        ### Action bar
+        # Action bar
         h_box_layout = QHBoxLayout()
         self.dc = QPushButton("Disconnect (from server)")
         self.dc.clicked.connect(self.disconnect)
@@ -70,18 +82,20 @@ class Window(QMainWindow):
         h_box_layout.addWidget(self.ec, 2)
 
         formLayout.addRow(h_box_layout)
-        ###################
+        #######
 
-        ### Connection Table
+        # Connection Table
         self.tableWidget = QTableWidget()
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setRowCount(3)
         self.tableWidget.setHorizontalHeaderLabels(["Name", "IP", "Porta"])
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
         v_box_layout = QVBoxLayout()
         v_box_layout.addWidget(self.tableWidget)
         formLayout.addRow(v_box_layout)
-        ###################
+        #######
 
         self.centralWidget.setLayout(formLayout)
 
@@ -90,9 +104,11 @@ class Window(QMainWindow):
     def updated_state(self):
         self.tcp_state = self.client.tcp_state
         self.udp_state = self.client.udp_state
-        self.server_status.setText(f"[tcp:{self.tcp_state}, udp:{self.udp_state}]")
+        self.server_status.setText(
+            f"[tcp:{self.tcp_state}, udp:{self.udp_state}]"
+        )
 
-        ##### UDP ######
+        # UDP #
         if self.udp_state == "idle":
             self.ec.setDisabled(True)
             self.call_btn.setDisabled(False)
@@ -110,17 +126,17 @@ class Window(QMainWindow):
             self.ec.setDisabled(False)
             self.call_btn.setDisabled(True)
 
-        ###### TCP #######
+        # TCP #
         if self.tcp_state == "offline":
-            ## Connect to server enabled
+            # Connect to server enabled
             self.ip.setDisabled(False)
             self.connect_btn.setDisabled(False)
 
-            ## Set name disbled
+            # Set name disbled
             self.user_name.setDisabled(True)
             self.login_btn.setDisabled(True)
 
-            ## Call disabled
+            # Call disabled
             self.dc.setDisabled(True)
             self.call_btn.setDisabled(True)
             self.user_to_call.setDisabled(True)
@@ -128,43 +144,43 @@ class Window(QMainWindow):
             self.clear_table()
 
         elif self.tcp_state == "unregistered":
-            ## Connect to server enabled
+            # Connect to server enabled
             self.ip.setDisabled(True)
             self.connect_btn.setDisabled(True)
 
-            ## Set name disbled
+            # Set name disbled
             self.user_name.setDisabled(False)
             self.login_btn.setDisabled(False)
 
-            ## Call disabled
+            # Call disabled
             self.dc.setDisabled(True)
             self.call_btn.setDisabled(True)
             self.user_to_call.setDisabled(True)
 
         elif self.tcp_state == "waiting_register":
-            ## Connect to server enabled
+            # Connect to server enabled
             self.ip.setDisabled(True)
             self.connect_btn.setDisabled(True)
 
-            ## Set name disbled
+            # Set name disbled
             self.user_name.setDisabled(True)
             self.login_btn.setDisabled(True)
 
-            ## Call disabled
+            # Call disabled
             self.dc.setDisabled(True)
             self.call_btn.setDisabled(True)
             self.user_to_call.setDisabled(True)
 
         elif self.tcp_state == "idle":
-            ## Connect to server enabled
+            # Connect to server enabled
             self.ip.setDisabled(True)
             self.connect_btn.setDisabled(True)
 
-            ## Set name disbled
+            # Set name disbled
             self.user_name.setDisabled(True)
             self.login_btn.setDisabled(True)
 
-            ## Call disabled
+            # Call disabled
             self.dc.setDisabled(False)
             self.call_btn.setDisabled(False)
             self.user_to_call.setDisabled(False)
@@ -189,13 +205,15 @@ class Window(QMainWindow):
         return p.exec_()
 
     @pyqtSlot(list, name="users_list")
-    def update_connection_table(self,data):
+    def update_connection_table(self, data):
         self.clear_table()
         index = 0
         for user in data:
             self.tableWidget.setItem(index, 0, QTableWidgetItem(user["name"]))
             self.tableWidget.setItem(index, 1, QTableWidgetItem(user["ip"]))
-            self.tableWidget.setItem(index, 2, QTableWidgetItem(str(user["porta"])))
+            self.tableWidget.setItem(
+                index, 2, QTableWidgetItem(str(user["porta"]))
+            )
             index += 1
 
     def clear_table(self):

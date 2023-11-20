@@ -1,4 +1,4 @@
-from app.server import *
+from app.server import Server
 
 s = Server(ip="192.168.1.1")
 
