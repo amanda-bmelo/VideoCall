@@ -50,8 +50,8 @@ class Message:
             return Message.MESSAGE_TYPES[t]
 
         raise Exception(
-            "Message type must be either a single byte, a string or an int." +
-            f" Got {type(t)}"
+            "Message type must be either a single byte, a string or an int."
+            + f" Got {type(t)}"
             + ["", f" of length {len(t)}"][isinstance(t, bytes)]
         )
 

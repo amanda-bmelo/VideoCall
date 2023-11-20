@@ -26,7 +26,7 @@ class Window(QMainWindow):
         self.setGeometry(150, 150, 600, 550)
 
         self.setStyleSheet(
-            '''
+            """
             QWidget { background-color: white;
             font: 14px; }
             QPushButton {
@@ -68,7 +68,7 @@ class Window(QMainWindow):
             border-color: rgb(120, 155, 155);
             border-style: outset;
             padding: 5px;
-            }'''
+            }"""
         )
         self.setWindowTitle("Video Call - conecte com seus amigos")
         self.console_history = []
@@ -88,16 +88,16 @@ class Window(QMainWindow):
         # Connection
         self.ip = QLineEdit()
         self.ip.setText(ip_address)
-        self.connect_btn = QPushButton("Connect to server", self)
+        self.connect_btn = QPushButton("Conectar com servidor", self)
         self.connect_btn.clicked.connect(self.connect)
-        formLayout.addRow("IP do Servidor: (0.0.0.0)", self.ip)
+        formLayout.addRow("IP do Servidor: [0.0.0.0]", self.ip)
         formLayout.addRow(self.connect_btn)
         #######
 
         # Login
         self.user_name = QLineEdit()
-        self.user_name.setText("Fulano das Couves")
-        self.login_btn = QPushButton("Login", self)
+        self.user_name.setText("Fulano")
+        self.login_btn = QPushButton("Logar", self)
         self.login_btn.clicked.connect(self.login)
         formLayout.addRow("Seu nome:", self.user_name)
         formLayout.addRow(self.login_btn)
@@ -118,29 +118,29 @@ class Window(QMainWindow):
         h_box_layout = QHBoxLayout()
         self.dc = QPushButton("Desconectar (do servidor)")
         self.dc.setStyleSheet(
-            "color: rgb(90, 0, 0);" +
-            "background-color: rgb(220, 120, 120);" +
-            "border-color: rgb(90, 0, 0);"
+            "color: rgb(90, 0, 0);"
+            + "background-color: rgb(220, 120, 120);"
+            + "border-color: rgb(90, 0, 0);"
         )
         self.dc.clicked.connect(self.disconnect)
         h_box_layout.addWidget(self.dc)
 
         self.call_btn = QPushButton("Iniciar chamada")
         self.call_btn.setStyleSheet(
-            "color: rgb(0, 90, 0);" +
-            "background-color: rgb(120, 200, 120);" +
-            "border-color: rgb(0, 90, 0);" +
-            "font: 14px;"
+            "color: rgb(0, 90, 0);"
+            + "background-color: rgb(120, 200, 120);"
+            + "border-color: rgb(0, 90, 0);"
+            + "font: 14px;"
         )
         self.call_btn.clicked.connect(self.call)
         h_box_layout.addWidget(self.call_btn, 1)
 
         self.ec = QPushButton("Desligar chamada")
         self.ec.setStyleSheet(
-            "color: rgb(90, 0, 0);" +
-            "background-color: rgb(220, 120, 120);" +
-            "border-color: rgb(90, 0, 0);" +
-            "font: 14px;"
+            "color: rgb(90, 0, 0);"
+            + "background-color: rgb(220, 120, 120);"
+            + "border-color: rgb(90, 0, 0);"
+            + "font: 14px;"
         )
         self.ec.clicked.connect(self.end_call)
         h_box_layout.addWidget(self.ec, 2)
@@ -153,9 +153,7 @@ class Window(QMainWindow):
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setRowCount(3)
         self.tableWidget.setHorizontalHeaderLabels(["Nome", "IP", "Porta"])
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch
-        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         v_box_layout = QVBoxLayout()
         v_box_layout.addWidget(self.tableWidget)
         formLayout.addRow(v_box_layout)
@@ -168,9 +166,7 @@ class Window(QMainWindow):
     def updated_state(self):
         self.tcp_state = self.client.tcp_state
         self.udp_state = self.client.udp_state
-        self.server_status.setText(
-            f"[tcp:{self.tcp_state}, udp:{self.udp_state}]"
-        )
+        self.server_status.setText(f"[tcp:{self.tcp_state}, udp:{self.udp_state}]")
 
         # UDP #
         if self.udp_state == "idle":

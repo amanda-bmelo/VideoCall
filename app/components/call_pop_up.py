@@ -13,10 +13,11 @@ class CallPopUp(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
-        self.buttonBox.button(QDialogButtonBox.Yes).setObjectName('yes')
-        self.buttonBox.button(QDialogButtonBox.No).setObjectName('no')
+        self.buttonBox.button(QDialogButtonBox.Yes).setObjectName("yes")
+        self.buttonBox.button(QDialogButtonBox.No).setObjectName("no")
 
-        self.setStyleSheet('''
+        self.setStyleSheet(
+            """
             QDialogButtonBox QAbstractButton#yes {
                 color: rgb(0, 90, 0);
                 background-color: rgb(120, 200, 120);
@@ -29,7 +30,8 @@ class CallPopUp(QDialog):
                 border-color: rgb(90, 0, 0);
                 font: 14px;
             }
-        ''')
+        """
+        )
 
         self.layout = QVBoxLayout()
         message = QLabel(
