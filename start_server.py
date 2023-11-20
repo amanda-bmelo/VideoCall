@@ -1,6 +1,6 @@
-from app.server import Server
+from app.server import Server, ip_address
 
-s = Server(ip="192.168.1.1")
+s = Server(ip=ip_address)
 
 while 1:
     pass

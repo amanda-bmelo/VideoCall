@@ -188,6 +188,7 @@ class Client(QWidget):
             ):
                 self.connected_to_udp = address
                 self.connected_to_udp_username = msg.user_name
+                self.caller_name = msg.info["user_name"]
                 self.udp_state = "received_request"
 
             elif (

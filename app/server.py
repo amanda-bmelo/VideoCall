@@ -1,14 +1,16 @@
-from socket import socket
+import socket
 from util.user import User
 from util.thread import thread
 from util.message import Message
 from util.wsocket import WSocket
 from util.connection_table import ConnectionTable
 
+ip_address = "192.168.1.5"
+
 
 class Server:
     def __init__(
-        self, ip=socket.gethostbyname(socket.gethostname()), port=5000
+        self, ip=ip_address, port=5000
     ) -> None:
         self.socket = WSocket(socket.create_server((ip, port)))
         self.connections = ConnectionTable()

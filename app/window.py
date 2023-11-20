@@ -1,4 +1,3 @@
-import socket
 import PyQt5
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -16,6 +15,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import pyqtSlot
 from app.client import Client
 from app.components.call_pop_up import CallPopUp
+from .server import ip_address
 
 
 class Window(QMainWindow):
@@ -23,15 +23,61 @@ class Window(QMainWindow):
 
     def __init__(self):
         super(Window, self).__init__()
-        self.setGeometry(100, 100, 600, 400)
-        self.setWindowTitle("Video chamada")
+        self.setGeometry(150, 150, 600, 550)
+
+        self.setStyleSheet(
+            '''
+            QWidget { background-color: white;
+            font: 14px; }
+            QPushButton {
+            color: rgb(0, 90, 90);
+            background-color: rgb(190, 225, 225);
+            border-style: outset;
+            border-width: 1px;
+            border-radius: 10px;
+            border-color: rgb(0, 90, 90);
+            font: 12px;
+            min-width: 8em;
+            padding: 6px;
+            margin: 10px 0px 20px 0px;
+            }
+            QPushButton:pressed {
+            color: rgb(60, 128, 124);
+            background-color: rgb(180, 228, 227);
+            border-color: rgb(110, 205, 200);
+            }
+            QLineEdit {
+            color: black;
+            background-color: rgb(255, 255, 253);
+            border-style: outset;
+            border-width: 1px;
+            border-radius: 5px;
+            border-color: lightblue;
+            font: 12px;
+            min-width: 8em;
+            padding: 10px;
+            }
+            QTableWidget {
+            color: rgb(0, 70, 70);
+            border-width: 0px;
+            border-style: solid;
+            }
+            QHeaderView::section {
+            background-color: rgb(200, 235, 235);
+            border-width: 0px 0px 1px 0px;
+            border-color: rgb(120, 155, 155);
+            border-style: outset;
+            padding: 5px;
+            }'''
+        )
+        self.setWindowTitle("Video Call - conecte com seus amigos")
         self.console_history = []
         self.tcp_state = "offline"
         self.udp_state = "idle"
 
         self.state_change.connect(self.updated_state)
         self.client = Client(
-            self.state_change.emit, self.state_change.emit, "192.168.1.1"
+            self.state_change.emit, self.state_change.emit, ip_address
         )
         self.client.update_users.connect(self.update_connection_table)
 
@@ -41,19 +87,19 @@ class Window(QMainWindow):
 
         # Connection
         self.ip = QLineEdit()
-        self.ip.setText(socket.gethostbyname(socket.gethostname()))
+        self.ip.setText(ip_address)
         self.connect_btn = QPushButton("Connect to server", self)
         self.connect_btn.clicked.connect(self.connect)
-        formLayout.addRow("Ip: (0.0.0.0)", self.ip)
+        formLayout.addRow("IP do Servidor: (0.0.0.0)", self.ip)
         formLayout.addRow(self.connect_btn)
         #######
 
         # Login
         self.user_name = QLineEdit()
-        self.user_name.setText("Bruno")
+        self.user_name.setText("Fulano das Couves")
         self.login_btn = QPushButton("Login", self)
         self.login_btn.clicked.connect(self.login)
-        formLayout.addRow("Login as:", self.user_name)
+        formLayout.addRow("Seu nome:", self.user_name)
         formLayout.addRow(self.login_btn)
         #######
 
@@ -61,23 +107,41 @@ class Window(QMainWindow):
         self.server_status = QLabel(self)
         self.server_status.setGeometry(20, 20, 100, 100)
         self.server_status.setText("[offline]")
-        formLayout.addRow("Server stauts: ", self.server_status)
+        formLayout.addRow("Status do servidor: ", self.server_status)
 
         self.user_to_call = QLineEdit()
-        formLayout.addRow("User name:", self.user_to_call)
+        self.server_status.setGeometry(50, 50, 100, 100)
+        formLayout.addRow("Para quem deseja ligar?", self.user_to_call)
         #######
 
         # Action bar
         h_box_layout = QHBoxLayout()
-        self.dc = QPushButton("Disconnect (from server)")
+        self.dc = QPushButton("Desconectar (do servidor)")
+        self.dc.setStyleSheet(
+            "color: rgb(90, 0, 0);" +
+            "background-color: rgb(220, 120, 120);" +
+            "border-color: rgb(90, 0, 0);"
+        )
         self.dc.clicked.connect(self.disconnect)
         h_box_layout.addWidget(self.dc)
 
-        self.call_btn = QPushButton("Call user")
+        self.call_btn = QPushButton("Iniciar chamada")
+        self.call_btn.setStyleSheet(
+            "color: rgb(0, 90, 0);" +
+            "background-color: rgb(120, 200, 120);" +
+            "border-color: rgb(0, 90, 0);" +
+            "font: 14px;"
+        )
         self.call_btn.clicked.connect(self.call)
         h_box_layout.addWidget(self.call_btn, 1)
 
-        self.ec = QPushButton("End Call")
+        self.ec = QPushButton("Desligar chamada")
+        self.ec.setStyleSheet(
+            "color: rgb(90, 0, 0);" +
+            "background-color: rgb(220, 120, 120);" +
+            "border-color: rgb(90, 0, 0);" +
+            "font: 14px;"
+        )
         self.ec.clicked.connect(self.end_call)
         h_box_layout.addWidget(self.ec, 2)
 
@@ -88,7 +152,7 @@ class Window(QMainWindow):
         self.tableWidget = QTableWidget()
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setRowCount(3)
-        self.tableWidget.setHorizontalHeaderLabels(["Name", "IP", "Porta"])
+        self.tableWidget.setHorizontalHeaderLabels(["Nome", "IP", "Porta"])
         self.tableWidget.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch
         )
@@ -201,7 +265,7 @@ class Window(QMainWindow):
         self.client.end_call()
 
     def call_request_pop_up(self):
-        p = CallPopUp(self.client.name, self)
+        p = CallPopUp(self.client.caller_name, self)
         return p.exec_()
 
     @pyqtSlot(list, name="users_list")

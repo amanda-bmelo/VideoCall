@@ -35,7 +35,9 @@ class Message:
         )
 
     def __repr__(self) -> str:
-        return Message.kind(self.type) + "; " + json.dumps(self.info, sort_keys=True)
+        return Message.kind(self.type) + "; " + json.dumps(
+            self.info, sort_keys=True
+        )
 
     def kind(t):
         if isinstance(t, str):
@@ -48,19 +50,22 @@ class Message:
             return Message.MESSAGE_TYPES[t]
 
         raise Exception(
-            f"Message type must be either a single byte, a string or an int. Got {type(t)}"
+            "Message type must be either a single byte, a string or an int." +
+            f" Got {type(t)}"
             + ["", f" of length {len(t)}"][isinstance(t, bytes)]
         )
 
-    ### Get attributes that aren't defined.
+    # Get attributes that aren't defined.
     def __getattribute__(self, __name: str):
         try:
             return super().__getattribute__(__name)
-        except:
+        except Exception:
             try:
                 return self.info[__name]
-            except Exception as e:
-                # print(f"[Warning] No attribute named {__name} for {self}. The message might not be following the message.type formatting proprelly.")
+            except Exception:
+                # print(f"[Warning] No attribute named {__name} for {self}.
+                # The message might not be following the message.type
+                # formatting proprelly.")
                 return None
 
     def encode(self) -> bytes:
