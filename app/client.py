@@ -221,6 +221,7 @@ class Client(QWidget):
                     self.connected_to_udp = None
                     self.connected_to_udp_username = None
                     self.udp_state = "idle"
+                    self.end_call(call_ending=False)
 
     def login(self, username):
         self.send(
@@ -265,8 +266,9 @@ class Client(QWidget):
             Message("call_request", user_name=self.name), (ip, porta)
         )
 
-    def end_call(self):
-        self.udp_send(Message("end_call"), self.connected_to_udp)
+    def end_call(self, call_ending: bool = True):
+        if call_ending is True:
+            self.udp_send(Message("end_call"), self.connected_to_udp)
         self.call_connections[0].stop_server()
         self.call_connections[1].stop_server()
         self.call_connections[2].stop_stream()
