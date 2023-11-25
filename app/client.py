@@ -1,4 +1,3 @@
-import base64
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
 from util.message import Message
@@ -41,7 +40,6 @@ class Client(QWidget):
         self.on_udp_state_change = on_udp_state_change
 
         self.call_connections = []
-        self.on_voice_receive = lambda x: None
 
         thread(self.udp_listen, ())
 
@@ -210,18 +208,14 @@ class Client(QWidget):
                 ]:
                     self.udp_state = "idle"
 
-            elif self.udp_state == "on_call":
-                if (
-                    msg.type == Message.kind("voice")
-                    and address == self.connected_to_udp
-                ):
-                    self.received_voice(base64.b64decode(msg.voice))
-
-                elif msg.type == Message.kind("end_call"):
-                    self.connected_to_udp = None
-                    self.connected_to_udp_username = None
-                    self.udp_state = "idle"
-                    self.end_call(call_ending=False)
+            elif (
+                self.udp_state == "on_call" and
+                msg.type == Message.kind("end_call")
+            ):
+                self.connected_to_udp = None
+                self.connected_to_udp_username = None
+                self.udp_state = "idle"
+                self.end_call(call_ending=False)
 
     def login(self, username):
         self.send(
@@ -249,7 +243,7 @@ class Client(QWidget):
         user_to_call = self.last_registry
         self.call(user_to_call["ip"], user_to_call["porta"])
 
-    def respond_call_request(self, accept=True):
+    def respond_call_request(self, accept: bool = True):
         if accept:
             self.udp_send(
                 Message("accept_call", user_name=self.name),
@@ -297,15 +291,3 @@ class Client(QWidget):
 
     def start_caller_stream(self):
         self.start_call(8888, 9999, 6666, 7777)
-
-    def send_voice(self, voice: bytes):
-        if self.connected_to_udp:
-            self.udp_send(
-                Message(
-                    "voice", voice=base64.b64encode(voice).decode("ascii")
-                ),
-                self.connected_to_udp,
-            )
-
-    def received_voice(self, voice: bytes):
-        self.on_voice_receive(voice)

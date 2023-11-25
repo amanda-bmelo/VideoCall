@@ -153,7 +153,9 @@ class Window(QMainWindow):
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setRowCount(3)
         self.tableWidget.setHorizontalHeaderLabels(["Nome", "IP", "Porta"])
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch
+        )
         v_box_layout = QVBoxLayout()
         v_box_layout.addWidget(self.tableWidget)
         formLayout.addRow(v_box_layout)
@@ -166,7 +168,9 @@ class Window(QMainWindow):
     def updated_state(self):
         self.tcp_state = self.client.tcp_state
         self.udp_state = self.client.udp_state
-        self.server_status.setText(f"[tcp:{self.tcp_state}, udp:{self.udp_state}]")
+        self.server_status.setText(
+            f"[tcp:{self.tcp_state}, udp:{self.udp_state}]"
+        )
 
         # UDP #
         if self.udp_state == "idle":

@@ -19,6 +19,7 @@ class Server:
 
     def wait_connections(self):
         self.socket.listen()
+        print("Aguardando conexões...")
         while True:
             conn, _ = self.socket.accept()
             thread(self.client_thread, (WSocket(conn),))

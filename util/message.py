@@ -14,7 +14,6 @@ class Message:
         "reject_call",
         "accept_call",
         "occupied",
-        "voice",
         "end_call",
         "unregister",
         "accepted_unregister",

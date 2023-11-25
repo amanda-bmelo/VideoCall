@@ -25,4 +25,7 @@ class ConnectionTable:
         return {"users": [user.jsonfy() for user in self.active_connections]}
 
     def listfy(self):
-        return [[user.name, user.ip, user.porta] for user in self.active_connections]
+        return [
+            [user.name, user.ip, user.porta]
+            for user in self.active_connections
+        ]
