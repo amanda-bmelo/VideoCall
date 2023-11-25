@@ -25,9 +25,6 @@ class Message:
         if isinstance(type, str):
             type = Message.kind(type)
         self.type = type
-        self.user_name: str | None = None
-        self.user: dict | None = None
-        self.data: dict | None = None
         self.info = kwargs
 
     def __str__(self) -> str:

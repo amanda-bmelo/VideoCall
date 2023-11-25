@@ -21,31 +21,31 @@ class Client(QWidget):
         **kwargs
     ):
         super(Client, self).__init__(*args, **kwargs)
-        self.name: str | None = None
-        self.tcp: WSocket | None = None
-        self.last_registry: bool | dict | None = None
-        self.data: str | None = None
+        self.name = None
+        self.tcp = None
+        self.last_registry = None
+        self.data = None
 
         self.udp = WSocket(
             Socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         )
         self.connected_to_udp = None
-        self.connected_to_udp_username: str = "?"
-        self.ip: str = self_ip
+        self.connected_to_udp_username = "?"
+        self.ip = self_ip
         self.udp.bind((self_ip, 0))
 
-        self._tcp_state: str = "offline"
+        self._tcp_state = "offline"
         self.on_tcp_state_change = on_tcp_state_change
 
-        self._udp_state: str = "idle"
+        self._udp_state = "idle"
         self.on_udp_state_change = on_udp_state_change
 
-        self.call_connections: list = []
+        self.call_connections = []
         self.on_voice_receive = lambda x: None
 
         thread(self.udp_listen, ())
 
-    def connect_to_server(self, ip: str, port: int =5000):
+    def connect_to_server(self, ip, port=5000):
         try:
             self.tcp = WSocket(
                 Socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -62,8 +62,8 @@ class Client(QWidget):
         return self._tcp_state
 
     @tcp_state.setter
-    def tcp_state(self, _v: str):
-        self._tcp_state: str = _v
+    def tcp_state(self, _v):
+        self._tcp_state = _v
         self.on_tcp_state_change()
 
     @property
@@ -71,7 +71,7 @@ class Client(QWidget):
         return self._udp_state
 
     @udp_state.setter
-    def udp_state(self, _v: str):
+    def udp_state(self, _v):
         self._udp_state = _v
         self.on_udp_state_change()
 
@@ -138,7 +138,7 @@ class Client(QWidget):
                     if message.type == Message.kind("accepted_register"):
                         print(
                             "Succesfully registered!"
-                        )
+                        )  # TODO "successfully logged in"
                         self.tcp_state = "idle"
 
                     elif message.type == Message.kind("declined_register"):
@@ -188,7 +188,7 @@ class Client(QWidget):
             ):
                 self.connected_to_udp = address
                 self.connected_to_udp_username = msg.user_name
-                self.caller_name = msg.user_name
+                self.caller_name = msg.info["user_name"]
                 self.udp_state = "received_request"
 
             elif (
@@ -298,3 +298,14 @@ class Client(QWidget):
     def start_caller_stream(self):
         self.start_call(8888, 9999, 6666, 7777)
 
+    def send_voice(self, voice: bytes):
+        if self.connected_to_udp:
+            self.udp_send(
+                Message(
+                    "voice", voice=base64.b64encode(voice).decode("ascii")
+                ),
+                self.connected_to_udp,
+            )
+
+    def received_voice(self, voice: bytes):
+        self.on_voice_receive(voice)
