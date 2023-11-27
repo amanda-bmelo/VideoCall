@@ -17,6 +17,8 @@ from app.client import Client
 from app.components.call_pop_up import CallPopUp
 from .server import ip_address
 
+client_ip = "192.168.1.5"
+
 
 class Window(QMainWindow):
     state_change = PyQt5.QtCore.pyqtSignal()
@@ -77,7 +79,7 @@ class Window(QMainWindow):
 
         self.state_change.connect(self.updated_state)
         self.client = Client(
-            self.state_change.emit, self.state_change.emit, ip_address
+            self.state_change.emit, self.state_change.emit, client_ip,
         )
         self.client.update_users.connect(self.update_connection_table)
 
@@ -177,16 +179,16 @@ class Window(QMainWindow):
             self.ec.setDisabled(True)
             self.call_btn.setDisabled(False)
 
-        elif self.udp_state == "waiting_response":
+        if self.udp_state == "waiting_response":
             self.ec.setDisabled(False)
             self.call_btn.setDisabled(True)
 
-        elif self.udp_state == "received_request":
+        if self.udp_state == "received_request":
             self.client.respond_call_request(self.call_request_pop_up())
             self.ec.setDisabled(True)
             self.call_btn.setDisabled(True)
 
-        elif self.udp_state == "on_call":
+        if self.udp_state == "on_call":
             self.ec.setDisabled(False)
             self.call_btn.setDisabled(True)
 
